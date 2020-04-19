@@ -8,6 +8,12 @@ Simple desktop widget for 2ch imageboard
 ## Screenshots
 
 
+## TODO
+
+1) Switch to HTTPS
+2) Add emoji
+
+
 ## Requirements
 
 Java 8 and above.
