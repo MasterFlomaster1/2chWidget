@@ -1,5 +1,6 @@
 package GUI;
 
+import Base.BrowserHandler;
 import Base.ThreadBase;
 
 import javax.swing.*;
@@ -10,12 +11,12 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
-import java.util.Date;
 
 public class GUI {
 
     public static WidgetTableModel widgetTableModel;
+    private static boolean isSelected;
+    private static int SELECTED_ROW;
 
     public GUI() {
 
@@ -85,21 +86,54 @@ public class GUI {
             }
         });
 
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                boolean left = false;
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    //do something
+                } else if (SwingUtilities.isLeftMouseButton(e)) {
+                    left = true;
+                }
+
+                if (!isSelected) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    int col = table.columnAtPoint(e.getPoint());
+                    System.out.println("row: "+row);
+                    System.out.println("col: " + col);
+                    if (row >= 0 && col >= 0) {
+                        isSelected = true;
+                        SELECTED_ROW = table.getSelectedRow();
+                        System.out.println("selected: row#"+SELECTED_ROW);
+                    }
+                } else if (left) {
+//                    table.getSelectionModel().clearSelection();
+                    System.out.println("unselected row#"+SELECTED_ROW+"--->selected row#"+table.getSelectedRow());
+                    SELECTED_ROW = table.getSelectedRow();
+                    isSelected=true;
+                }
+//                System.out.println("SELECTED THREAD: " + widgetTableModel.getThread(SELECTED_ROW).subject);
+            }
+        });
+
+        table.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    try {
+                        BrowserHandler browserHandler = new BrowserHandler();
+                        browserHandler.openURL(widgetTableModel.getThread(SELECTED_ROW).link);
+                    } catch (NullPointerException ignored) { }
+                }
+            }
+        });
+
+
         frame.setSize(520, 300);
         frame.setUndecorated(true);
         frame.setOpacity(0.85f);
         frame.setLocationRelativeTo(null);
         SwingUtilities.invokeLater(() -> frame.setVisible(true));
 
-    }
-
-
-    private void DebugTable() {
-        ArrayList<ThreadBase> list = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
-            list.add(new ThreadBase("Thread #"+i));
-        }
-        widgetTableModel.updateData(list);
     }
 
 }

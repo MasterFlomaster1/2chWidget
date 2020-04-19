@@ -35,6 +35,10 @@ public class WidgetTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    public ThreadBase getThread(int index) {
+        return threadsList.get(index);
+    }
+
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:

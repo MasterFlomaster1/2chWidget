@@ -52,6 +52,9 @@ public class ThreadsParser {
             t.posts_count = a.getInt("posts_count");
             t.views = a.getInt("views");
             t.thread_num = a.getString("num");
+            t.board = "b";
+            t.tablePosition = i;
+            t.buildLink();
             threads.add(t);
         }
 
