@@ -4,10 +4,11 @@ import Base.ThreadBase;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class WidgetTableModel extends AbstractTableModel {
+
+    private List<ThreadBase> threadsList = new ArrayList<>();
 
     @Override
     public int getRowCount() {
@@ -16,19 +17,17 @@ public class WidgetTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 2;
+        return 1;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return threadsList.get(rowIndex).getSubject();
+                return threadsList.get(rowIndex).subject;
         }
         return null;
     }
-
-    private List<ThreadBase> threadsList = new ArrayList<>();
 
     public void updateData(List<ThreadBase> newThreads) {
         this.threadsList = newThreads;
@@ -40,8 +39,6 @@ public class WidgetTableModel extends AbstractTableModel {
         switch (columnIndex) {
             case 0:
                 return String.class;
-            case 1:
-                return Date.class;
         }
         return Object.class;
     }

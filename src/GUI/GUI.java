@@ -1,5 +1,7 @@
 package GUI;
 
+import Base.ThreadBase;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -8,17 +10,20 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class GUI {
 
+    public static WidgetTableModel widgetTableModel;
 
     public GUI() {
 
+        widgetTableModel = new WidgetTableModel();
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        JTable table = new JTable(new WidgetTableModel());
+        JTable table = new JTable(widgetTableModel);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setRowHeight(30);
@@ -33,7 +38,7 @@ public class GUI {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setBackground(row % 2 == 0 ? oddColor : evenColor);
                 setForeground(titleColor);
-//                setFont(font);
+                setFont(new Font("Arial", Font.BOLD, 14));
                 return this;
             }
         });
@@ -84,9 +89,17 @@ public class GUI {
         frame.setUndecorated(true);
         frame.setOpacity(0.85f);
         frame.setLocationRelativeTo(null);
-
         SwingUtilities.invokeLater(() -> frame.setVisible(true));
 
+    }
+
+
+    private void DebugTable() {
+        ArrayList<ThreadBase> list = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            list.add(new ThreadBase("Thread #"+i));
+        }
+        widgetTableModel.updateData(list);
     }
 
 }
