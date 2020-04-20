@@ -3,6 +3,7 @@ package GUI;
 import Base.BrowserHandler;
 import Base.ThreadBase;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -11,10 +12,13 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class GUI {
 
     public static WidgetTableModel widgetTableModel;
+    public static JLabel tablePreview;
     private static boolean isSelected;
     private static int SELECTED_ROW;
 
@@ -22,6 +26,15 @@ public class GUI {
 
         widgetTableModel = new WidgetTableModel();
         JFrame frame = new JFrame();
+        tablePreview = new JLabel("No data");
+
+        try {
+            BufferedImage image = ImageIO.read(getClass().getResource("/rss.png"));
+            frame.setIconImage(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JTable table = new JTable(widgetTableModel);
@@ -33,7 +46,7 @@ public class GUI {
         table.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
             final Color oddColor = new Color(0x25, 0x25, 0x25);
             final Color evenColor = new Color(0x1a, 0x1a, 0x1a);
-            final Color titleColor = new Color(0x3a, 0xa2, 0xd7);
+            final Color titleColor = new Color(0xdf, 0x6e, 0x1d);
 
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -112,7 +125,6 @@ public class GUI {
                     SELECTED_ROW = table.getSelectedRow();
                     isSelected=true;
                 }
-//                System.out.println("SELECTED THREAD: " + widgetTableModel.getThread(SELECTED_ROW).subject);
             }
         });
 
@@ -134,6 +146,16 @@ public class GUI {
         frame.setLocationRelativeTo(null);
         SwingUtilities.invokeLater(() -> frame.setVisible(true));
 
+    }
+
+    public static void enablePreview() {
+        tablePreview.setEnabled(true);
+        tablePreview.updateUI();
+    }
+
+    public static void disablePreview() {
+        tablePreview.setEnabled(false);
+        tablePreview.updateUI();
     }
 
 }

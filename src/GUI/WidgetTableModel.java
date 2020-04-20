@@ -31,7 +31,6 @@ public class WidgetTableModel extends AbstractTableModel {
 
     public void updateData(List<ThreadBase> newThreads) {
         this.threadsList = newThreads;
-        //Request listeners to update table data
         fireTableDataChanged();
     }
 
