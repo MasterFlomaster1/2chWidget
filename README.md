@@ -12,6 +12,7 @@ Simple desktop widget for 2ch imageboard
 
 1) Switch to HTTPS
 2) Add emoji
+3) Add option to download all files from selected thread
 
 
 ## Requirements
