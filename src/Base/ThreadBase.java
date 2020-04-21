@@ -10,16 +10,18 @@ public class ThreadBase {
     public String link;
     public String board;
     public int tablePosition;
+    public boolean hidden;
 
     public ThreadBase(String subject) {
         if (!subject.equals("")) {
-            this.subject = subject;
+            this.subject = subject.trim();
         }
     }
 
     public void finish() {
         buildLink();
         resolveHtmlCharacters();
+        resolveEmoji();
     }
 
     private void buildLink() {
@@ -30,6 +32,11 @@ public class ThreadBase {
         HtmlStringHandler htmlStringHandler = new HtmlStringHandler();
         subject = htmlStringHandler.handleString(subject);
         comment = htmlStringHandler.handleString(comment);
+    }
+
+    private void resolveEmoji() {
+//        subject = EmojiHandler.resolveEmoji(subject);
+//        comment = EmojiHandler.resolveEmoji(subject);
     }
 
 }

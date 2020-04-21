@@ -1,7 +1,6 @@
 package GUI;
 
 import Base.BrowserHandler;
-import Base.ThreadBase;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -18,7 +17,8 @@ import java.io.IOException;
 public class GUI {
 
     public static WidgetTableModel widgetTableModel;
-    public static JLabel tablePreview;
+    public static JPanel tablePreviewPanel;
+    public static JLabel counterLabel;
     private static boolean isSelected;
     private static int SELECTED_ROW;
 
@@ -26,7 +26,10 @@ public class GUI {
 
         widgetTableModel = new WidgetTableModel();
         JFrame frame = new JFrame();
-        tablePreview = new JLabel("No data");
+        counterLabel = new JLabel("No data");
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        setupLookAndFeel();
 
         try {
             BufferedImage image = ImageIO.read(getClass().getResource("/rss.png"));
@@ -35,7 +38,14 @@ public class GUI {
             e.printStackTrace();
         }
 
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        tablePreviewPanel = new JPanel();
+        tablePreviewPanel.setBackground(new Color(0x1a, 0x1a, 0x1a));
+        tablePreviewPanel.setForeground(new Color(0x1a, 0x1a, 0x1a));
+        tablePreviewPanel.setPreferredSize(new Dimension(520, 30));
+        counterLabel.setForeground(new Color(0x1a, 0x1a, 0x1a));
+        counterLabel.setBackground(new Color(0x1a, 0x1a, 0x1a));
+        tablePreviewPanel.add(counterLabel);
+        frame.getContentPane().add(tablePreviewPanel, BorderLayout.SOUTH);
 
         JTable table = new JTable(widgetTableModel);
         table.setShowGrid(false);
@@ -52,7 +62,7 @@ public class GUI {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setBackground(row % 2 == 0 ? oddColor : evenColor);
                 setForeground(titleColor);
-                setFont(new Font("Arial", Font.BOLD, 14));
+                setFont(new Font("Arial", Font.PLAIN, 14));
                 return this;
             }
         });
@@ -63,7 +73,7 @@ public class GUI {
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
         scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
-//        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         JLabel titleLabel = new JLabel("2ch RSS");
@@ -139,23 +149,43 @@ public class GUI {
             }
         });
 
-
         frame.setSize(520, 300);
         frame.setUndecorated(true);
-        frame.setOpacity(0.85f);
+        frame.setOpacity(0.90f);
         frame.setLocationRelativeTo(null);
         SwingUtilities.invokeLater(() -> frame.setVisible(true));
 
     }
 
+    public static void setThreadsCounter(int number) {
+        counterLabel.setText("Threads: " + number);
+        counterLabel.updateUI();
+    }
+
     public static void enablePreview() {
-        tablePreview.setEnabled(true);
-        tablePreview.updateUI();
+        tablePreviewPanel.setEnabled(true);
+        tablePreviewPanel.updateUI();
     }
 
     public static void disablePreview() {
-        tablePreview.setEnabled(false);
-        tablePreview.updateUI();
+        tablePreviewPanel.setEnabled(false);
+        tablePreviewPanel.updateUI();
+    }
+
+    private static void setupLookAndFeel() {
+        if (System.getProperty("os.name").equalsIgnoreCase("linux")) {
+            try {
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

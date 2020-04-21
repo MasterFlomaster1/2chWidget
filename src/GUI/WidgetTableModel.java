@@ -2,6 +2,7 @@ package GUI;
 
 import Base.ThreadBase;
 
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ public class WidgetTableModel extends AbstractTableModel {
     public void updateData(List<ThreadBase> newThreads) {
         this.threadsList = newThreads;
         fireTableDataChanged();
+        GUI.setThreadsCounter(newThreads.size());
     }
 
     public ThreadBase getThread(int index) {
