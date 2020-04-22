@@ -1,8 +1,9 @@
 package GUI;
 
 import Base.BrowserHandler;
+import Base.ResourceHandler;
+import Network.ThreadsParser;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -11,64 +12,79 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class GUI {
 
     public static WidgetTableModel widgetTableModel;
-    public static JPanel tablePreviewPanel;
+    public static JPanel bottomPanel;
+
     public static JLabel counterLabel;
+    public static JLabel threadViewsLabel;
+    public static JLabel threadPostsCountLabel;
+
     private static boolean isSelected;
     private static int SELECTED_ROW;
 
-    public GUI() {
+    private static final Color blueColor = new Color(0x33, 0x66, 0xcc);
+    private static final Color darkGreyColor = new Color(0x25, 0x25, 0x25);
+    private static final Color blackColor = new Color(0x1a, 0x1a, 0x1a);
+    private static final Color titleColor = new Color(0xdf, 0x6e, 0x1d);
 
-        widgetTableModel = new WidgetTableModel();
-        JFrame frame = new JFrame();
-        counterLabel = new JLabel("No data");
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    public GUI() {
 
         setupLookAndFeel();
 
-        try {
-            BufferedImage image = ImageIO.read(getClass().getResource("/rss.png"));
-            frame.setIconImage(image);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setIconImage(ResourceHandler.getApplicationIcon());
 
-        tablePreviewPanel = new JPanel();
-        tablePreviewPanel.setBackground(new Color(0x1a, 0x1a, 0x1a));
-        tablePreviewPanel.setForeground(new Color(0x1a, 0x1a, 0x1a));
-        tablePreviewPanel.setPreferredSize(new Dimension(520, 30));
-        counterLabel.setForeground(new Color(0x1a, 0x1a, 0x1a));
-        counterLabel.setBackground(new Color(0x1a, 0x1a, 0x1a));
-        tablePreviewPanel.add(counterLabel);
-        frame.getContentPane().add(tablePreviewPanel, BorderLayout.SOUTH);
+        widgetTableModel = new WidgetTableModel();
+        Font bottomLabelFont = new Font("Arial", Font.BOLD, 12);
+
+        counterLabel = new JLabel("No data");
+        bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.setBackground(blackColor);
+        bottomPanel.setPreferredSize(new Dimension(520, 30));
+        counterLabel.setForeground(blueColor);
+        counterLabel.setFont(bottomLabelFont);
+        bottomPanel.add(counterLabel);
+        frame.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+
+        RoundButton updateThreadListButton = new RoundButton("");
+        updateThreadListButton.setPreferredSize(new Dimension(26, 25));
+        updateThreadListButton.setBackground(blackColor);
+        updateThreadListButton.setBorderPainted(false);
+        updateThreadListButton.setIcon(ResourceHandler.getUpdateButtonIcon());
+        updateThreadListButton.setOpaque(true);
+        updateThreadListButton.addActionListener(e -> ThreadsParser.getJsonData());
+
+        threadViewsLabel = new JLabel();
+//        threadViewsLabel.setIcon(ResourceHandler.getViewsLabelIcon());
+        threadViewsLabel.setForeground(blueColor);
+        threadViewsLabel.setFont(bottomLabelFont);
+        bottomPanel.add(threadViewsLabel);
+
+        threadPostsCountLabel = new JLabel();
+        threadPostsCountLabel.setForeground(blueColor);
+        threadPostsCountLabel.setFont(bottomLabelFont);
+        bottomPanel.add(threadPostsCountLabel);
 
         JTable table = new JTable(widgetTableModel);
+        table.setBackground(blackColor);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setRowHeight(30);
         table.setTableHeader(null);
 
         table.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
-            final Color oddColor = new Color(0x25, 0x25, 0x25);
-            final Color evenColor = new Color(0x1a, 0x1a, 0x1a);
-            final Color titleColor = new Color(0xdf, 0x6e, 0x1d);
-
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setBackground(row % 2 == 0 ? oddColor : evenColor);
+                setBackground(row % 2 == 0 ? darkGreyColor : blackColor);
                 setForeground(titleColor);
                 setFont(new Font("Arial", Font.PLAIN, 14));
                 return this;
             }
         });
-
-        table.setBackground(new Color(0x1a, 0x1a, 0x1a));
-
 
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
@@ -79,7 +95,6 @@ public class GUI {
         JLabel titleLabel = new JLabel("2ch RSS");
         Font titleFont = new Font("Arial", Font.BOLD, 20);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setForeground(new Color(0x1a, 0x1a, 0x1a));
         titleLabel.setPreferredSize(new Dimension(0, 40));
         titleLabel.setFont(titleFont);
         frame.getContentPane().add(titleLabel, BorderLayout.NORTH);
@@ -135,6 +150,8 @@ public class GUI {
                     SELECTED_ROW = table.getSelectedRow();
                     isSelected=true;
                 }
+                setThreadViews(widgetTableModel.getThread(SELECTED_ROW).views);
+                setThreadPostsCount(widgetTableModel.getThread(SELECTED_ROW).posts_count);
             }
         });
 
@@ -149,6 +166,8 @@ public class GUI {
             }
         });
 
+        bottomPanel.add(updateThreadListButton);
+
         frame.setSize(520, 300);
         frame.setUndecorated(true);
         frame.setOpacity(0.90f);
@@ -159,19 +178,16 @@ public class GUI {
 
     public static void setThreadsCounter(int number) {
         counterLabel.setText("Threads: " + number);
-        counterLabel.updateUI();
     }
 
-    public static void enablePreview() {
-        tablePreviewPanel.setEnabled(true);
-        tablePreviewPanel.updateUI();
+    public static void setThreadViews(int number) {
+        threadViewsLabel.setText("Views: " + number);
     }
 
-    public static void disablePreview() {
-        tablePreviewPanel.setEnabled(false);
-        tablePreviewPanel.updateUI();
+    public static void setThreadPostsCount(int number) {
+        threadPostsCountLabel.setText("Posts: " + number);
     }
-
+    
     private static void setupLookAndFeel() {
         if (System.getProperty("os.name").equalsIgnoreCase("linux")) {
             try {
