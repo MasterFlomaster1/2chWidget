@@ -29,6 +29,7 @@ public class GUI {
     private static final Color darkGreyColor = new Color(0x25, 0x25, 0x25);
     private static final Color blackColor = new Color(0x1a, 0x1a, 0x1a);
     private static final Color titleColor = new Color(0xdf, 0x6e, 0x1d);
+    private static final Color selectedTitleColor = new Color(255, 153, 0, 255);
 
     public GUI() {
 
@@ -52,11 +53,25 @@ public class GUI {
 
         RoundButton updateThreadListButton = new RoundButton("");
         updateThreadListButton.setPreferredSize(new Dimension(26, 25));
+        updateThreadListButton.setToolTipText("Update List");
         updateThreadListButton.setBackground(blackColor);
         updateThreadListButton.setBorderPainted(false);
         updateThreadListButton.setIcon(ResourceHandler.getUpdateButtonIcon());
         updateThreadListButton.setOpaque(true);
-        updateThreadListButton.addActionListener(e -> ThreadsParser.getJsonData());
+        updateThreadListButton.addActionListener(e -> {
+            ThreadsParser.getJsonData();
+            threadPostsCountLabel.setText("");
+            threadViewsLabel.setText("");
+        });
+
+        RoundButton exitButton = new RoundButton("");
+        exitButton.setPreferredSize(new Dimension(25, 25));
+        exitButton.setToolTipText("Close");
+        exitButton.setBackground(blackColor);
+        exitButton.setBorderPainted(false);
+        exitButton.setIcon(ResourceHandler.getExitButtonIcon());
+        exitButton.setOpaque(true);
+        exitButton.addActionListener(e -> exit());
 
         threadViewsLabel = new JLabel();
 //        threadViewsLabel.setIcon(ResourceHandler.getViewsLabelIcon());
@@ -81,6 +96,9 @@ public class GUI {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setBackground(row % 2 == 0 ? darkGreyColor : blackColor);
                 setForeground(titleColor);
+                if (isSelected) {
+                    setForeground(selectedTitleColor);
+                }
                 setFont(new Font("Arial", Font.PLAIN, 14));
                 return this;
             }
@@ -98,6 +116,19 @@ public class GUI {
         titleLabel.setPreferredSize(new Dimension(0, 40));
         titleLabel.setFont(titleFont);
         frame.getContentPane().add(titleLabel, BorderLayout.NORTH);
+
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem downloadThreadFilesButton = new JMenuItem("Download files");
+        downloadThreadFilesButton.setIcon(ResourceHandler.getFilesButtonIcon());
+        downloadThreadFilesButton.addActionListener(e -> System.out.println("downloading..."));
+        popupMenu.add(downloadThreadFilesButton);
+
+        JMenuItem hideButton = new JMenuItem("Hide thread");
+        hideButton.setIcon(ResourceHandler.getViewsLabelIcon());
+        hideButton.addActionListener(e -> System.out.println("thread hidden..."));
+        popupMenu.add(hideButton);
+
+        table.setComponentPopupMenu(popupMenu);
 
         MouseAdapter listener = new MouseAdapter() {
             int startX;
@@ -167,6 +198,7 @@ public class GUI {
         });
 
         bottomPanel.add(updateThreadListButton);
+        bottomPanel.add(exitButton);
 
         frame.setSize(520, 300);
         frame.setUndecorated(true);
@@ -186,6 +218,10 @@ public class GUI {
 
     public static void setThreadPostsCount(int number) {
         threadPostsCountLabel.setText("Posts: " + number);
+    }
+
+    private void exit() {
+        System.exit(0);
     }
     
     private static void setupLookAndFeel() {

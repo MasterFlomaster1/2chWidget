@@ -44,6 +44,7 @@ public class ThreadsParser {
 
     public static ArrayList<ThreadBase> getThreads(String raw) {
         ArrayList<ThreadBase> threads = new ArrayList<>();
+        //Exception in thread "Timer" org.json.JSONException: Unterminated string at 131748 [character 131749 line 1]
         JSONObject jsonObject = new JSONObject(raw);
         JSONArray msg = (JSONArray) jsonObject.get("threads");
 

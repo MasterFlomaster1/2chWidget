@@ -18,7 +18,16 @@ public class ResourceHandler {
 
     public static Icon getUpdateButtonIcon() {
         try {
-            return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/update.png")));
+            return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/refresh.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Icon getExitButtonIcon() {
+        try {
+            return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/cancel.png")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -28,6 +37,15 @@ public class ResourceHandler {
     public static Icon getViewsLabelIcon() {
         try {
             return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/eye.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Icon getFilesButtonIcon() {
+        try {
+            return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/save.png")));
         } catch (IOException e) {
             e.printStackTrace();
         }

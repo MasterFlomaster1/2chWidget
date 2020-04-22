@@ -15,6 +15,11 @@ Simple desktop widget for 2ch imageboard
 3) Add option to download all files from selected thread
 
 
+
+## Tested On
+- [x] Windows 10
+- [x] Ubuntu 18.04.4 LTS
+
 ## Requirements
 
 Java 8 and above.
