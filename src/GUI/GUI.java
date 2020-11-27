@@ -225,9 +225,17 @@ public class GUI {
     }
     
     private static void setupLookAndFeel() {
+        System.out.println("os name: " + System.getProperty("os.name"));
         if (System.getProperty("os.name").equalsIgnoreCase("linux")) {
             try {
                 UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (System.getProperty("os.name").equalsIgnoreCase("Mac OS X")) {
+            System.out.println("mac os default");
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception e) {
                 e.printStackTrace();
             }
