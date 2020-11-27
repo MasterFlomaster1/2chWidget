@@ -19,6 +19,7 @@ Simple desktop widget for 2ch imageboard
 ## Tested On
 - [x] Windows 10
 - [x] Ubuntu 18.04.4 LTS
+- [x] macOS Catalina
 
 ## Requirements
 
