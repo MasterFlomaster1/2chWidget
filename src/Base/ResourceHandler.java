@@ -25,6 +25,33 @@ public class ResourceHandler {
         return null;
     }
 
+    public static Icon getImageButtonIcon() {
+        try {
+            return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/image.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Icon getVideoButtonIcon() {
+        try {
+            return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/movie.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Icon getWebsiteButtonIcon() {
+        try {
+            return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/website.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static Icon getExitButtonIcon() {
         try {
             return new ImageIcon(ImageIO.read(ResourceHandler.class.getResource("/cancel.png")));
