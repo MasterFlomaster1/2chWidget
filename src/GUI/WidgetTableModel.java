@@ -2,7 +2,6 @@ package GUI;
 
 import Base.ThreadBase;
 
-import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.List;
 public class WidgetTableModel extends AbstractTableModel {
 
     private List<ThreadBase> threadsList = new ArrayList<>();
-
     @Override
     public int getRowCount() {
         return threadsList.size();

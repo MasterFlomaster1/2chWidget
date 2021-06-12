@@ -15,7 +15,7 @@ public class TimeManager {
                 ThreadsParser.getJsonData();
             }
         };
-        Timer timer = new Timer("Timer");
+        Timer timer = new Timer();
 
         long delay  = 1000L;
         long period = 300000L;

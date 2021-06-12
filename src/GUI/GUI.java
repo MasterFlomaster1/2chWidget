@@ -1,29 +1,27 @@
 package GUI;
 
-import Base.BrowserHandler;
-import Base.ResourceHandler;
+import Base.*;
 import Network.ThreadsParser;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 public class GUI {
 
     public static WidgetTableModel widgetTableModel;
     public static JPanel bottomPanel;
+    public static JTable table;
 
     public static JLabel counterLabel;
+    public static JLabel placeholderLabel;
     public static JLabel threadViewsLabel;
     public static JLabel threadPostsCountLabel;
 
-    private static boolean isSelected;
-    private static int SELECTED_ROW;
+    public static boolean isSelected;
+    public static int SELECTED_ROW = -1;
 
     private static final Color blueColor = new Color(0x33, 0x66, 0xcc);
     private static final Color darkGreyColor = new Color(0x25, 0x25, 0x25);
@@ -43,6 +41,7 @@ public class GUI {
         Font bottomLabelFont = new Font("Arial", Font.BOLD, 12);
 
         counterLabel = new JLabel("No data");
+        placeholderLabel = new JLabel("No data");
         bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.setBackground(blackColor);
         bottomPanel.setPreferredSize(new Dimension(520, 30));
@@ -84,7 +83,7 @@ public class GUI {
         threadPostsCountLabel.setFont(bottomLabelFont);
         bottomPanel.add(threadPostsCountLabel);
 
-        JTable table = new JTable(widgetTableModel);
+        table = new JTable(widgetTableModel);
         table.setBackground(blackColor);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
@@ -113,15 +112,46 @@ public class GUI {
         JLabel titleLabel = new JLabel("2ch RSS");
         Font titleFont = new Font("Arial", Font.BOLD, 20);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setPreferredSize(new Dimension(0, 40));
+        titleLabel.setPreferredSize(new Dimension(0, 30));
         titleLabel.setFont(titleFont);
         frame.getContentPane().add(titleLabel, BorderLayout.NORTH);
 
         JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem downloadThreadFilesButton = new JMenuItem("Download files");
-        downloadThreadFilesButton.setIcon(ResourceHandler.getFilesButtonIcon());
-        downloadThreadFilesButton.addActionListener(e -> System.out.println("downloading..."));
-        popupMenu.add(downloadThreadFilesButton);
+
+        JMenuItem openThreadInBrowser = new JMenuItem("Open in browser");
+        openThreadInBrowser.setIcon(ResourceHandler.getWebsiteButtonIcon());
+        openThreadInBrowser.addActionListener(e -> {
+            BrowserHandler browserHandler = new BrowserHandler();
+            browserHandler.openURL(widgetTableModel.getThread(SELECTED_ROW).link);
+        });
+        popupMenu.add(openThreadInBrowser);
+
+        JMenuItem downloadAllAttachedFilesButton = new JMenuItem("Download all files");
+        downloadAllAttachedFilesButton.setIcon(ResourceHandler.getFilesButtonIcon());
+        downloadAllAttachedFilesButton.addActionListener(e -> {
+            System.out.println("downloading...");
+            ThreadBase selectedThread = widgetTableModel.getThread(SELECTED_ROW);
+            Downloader.downloadImages(selectedThread, AttachedFileTypes.ALL);
+        });
+        popupMenu.add(downloadAllAttachedFilesButton);
+        
+        JMenuItem downloadAttachedImagesButton = new JMenuItem("Download images");
+        downloadAttachedImagesButton.setIcon(ResourceHandler.getImageButtonIcon());
+        downloadAttachedImagesButton.addActionListener(e -> {
+            System.out.println("downloading...");
+            ThreadBase selectedThread = widgetTableModel.getThread(SELECTED_ROW);
+            Downloader.downloadImages(selectedThread, AttachedFileTypes.IMAGES);
+        });
+        popupMenu.add(downloadAttachedImagesButton);
+
+        JMenuItem downloadAttachedVideosButton = new JMenuItem("Download video");
+        downloadAttachedVideosButton.setIcon(ResourceHandler.getVideoButtonIcon());
+        downloadAttachedVideosButton.addActionListener(e -> {
+            System.out.println("downloading...");
+            ThreadBase selectedThread = widgetTableModel.getThread(SELECTED_ROW);
+            Downloader.downloadImages(selectedThread, AttachedFileTypes.VIDEOS);
+        });
+        popupMenu.add(downloadAttachedVideosButton);
 
         JMenuItem hideButton = new JMenuItem("Hide thread");
         hideButton.setIcon(ResourceHandler.getViewsLabelIcon());
@@ -146,6 +176,7 @@ public class GUI {
                 frame.setLocation(cursorCoordinates.x - startX, cursorCoordinates.y - startY);
             }
         };
+
         titleLabel.addMouseListener(listener);
         titleLabel.addMouseMotionListener(listener);
 
@@ -155,50 +186,20 @@ public class GUI {
             }
         });
 
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                boolean left = false;
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    //do something
-                } else if (SwingUtilities.isLeftMouseButton(e)) {
-                    left = true;
-                }
-
-                if (!isSelected) {
-                    int row = table.rowAtPoint(e.getPoint());
-                    int col = table.columnAtPoint(e.getPoint());
-                    System.out.println("row: "+row);
-                    System.out.println("col: " + col);
-                    if (row >= 0 && col >= 0) {
-                        isSelected = true;
-                        SELECTED_ROW = table.getSelectedRow();
-                        System.out.println("selected: row#"+SELECTED_ROW);
-                    }
-                } else if (left) {
-//                    table.getSelectionModel().clearSelection();
-                    System.out.println("unselected row#"+SELECTED_ROW+"--->selected row#"+table.getSelectedRow());
-                    SELECTED_ROW = table.getSelectedRow();
-                    isSelected=true;
-                }
-                setThreadViews(widgetTableModel.getThread(SELECTED_ROW).views);
-                setThreadPostsCount(widgetTableModel.getThread(SELECTED_ROW).posts_count);
-            }
-        });
-
-        table.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    try {
-                        BrowserHandler browserHandler = new BrowserHandler();
-                        browserHandler.openURL(widgetTableModel.getThread(SELECTED_ROW).link);
-                    } catch (NullPointerException ignored) { }
-                }
-            }
-        });
+        CustomMouseListener cml = new CustomMouseListener();
+        table.addMouseListener(cml);
 
         bottomPanel.add(updateThreadListButton);
         bottomPanel.add(exitButton);
+
+        frame.getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
+                InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK), "searchComb");
+        frame.getRootPane().getActionMap().put("searchComb", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("SEARCH FIELD ENABLED");
+            }
+        });
 
         frame.setSize(520, 300);
         frame.setUndecorated(true);
